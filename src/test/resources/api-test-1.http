@@ -28,15 +28,3 @@ Content-Type: application/json
 ### 5. 删除任务
 DELETE http://localhost:8080/tasks/1
 
-
-### 新增任务
-POST http://localhost:8080/tasks
-Content-Type: application/json
-
-{
-  "title": "学习 MySQL",
-  "description": "把任务管理系统升级成数据库版"
-}
-
-### 查询任务列表
-GET http://localhost:8080/tasks

@@ -9,16 +9,9 @@ public class Task {
     private String description;
     private String status;
     private LocalDateTime createdTime;
+    private LocalDateTime updatedTime;
 
     public Task() {
-    }
-
-    public Task(Long id, String title, String description, String status, LocalDateTime createdTime) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.status = status;
-        this.createdTime = createdTime;
     }
 
     public Long getId() {
@@ -41,6 +34,10 @@ public class Task {
         return createdTime;
     }
 
+    public LocalDateTime getUpdatedTime() {
+        return updatedTime;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -59,5 +56,9 @@ public class Task {
 
     public void setCreatedTime(LocalDateTime createdTime) {
         this.createdTime = createdTime;
+    }
+
+    public void setUpdatedTime(LocalDateTime updatedTime) {
+        this.updatedTime = updatedTime;
     }
 }

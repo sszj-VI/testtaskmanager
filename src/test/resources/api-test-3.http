@@ -1,0 +1,49 @@
+@baseUrl = http://localhost:8080
+@taskId = 9
+
+### 测试 Spring Boot 是否正常
+GET {{baseUrl}}/hello
+
+
+### 新增任务
+POST {{baseUrl}}/tasks
+Content-Type: application/json
+
+{
+  "title": "今天测试用任务",
+  "description": "用于验证新增、查询、修改和删除"
+}
+
+
+### 查询任务列表
+GET {{baseUrl}}/tasks
+
+
+### 根据 ID 查询任务
+GET {{baseUrl}}/tasks/{{taskId}}
+
+
+### 修改任务状态
+PUT {{baseUrl}}/tasks/{{taskId}}/status
+Content-Type: application/json
+
+{
+  "status": "DONE"
+}
+
+
+### 删除任务
+DELETE {{baseUrl}}/tasks/{{taskId}}
+
+
+### 删除后再次查询任务列表
+GET {{baseUrl}}/tasks
+
+
+### 当前测试结果记录
+# GET /hello：通过
+# POST /tasks：通过
+# GET /tasks：通过
+# GET /tasks/{id}：通过
+# PUT /tasks/{id}/status：通过
+# DELETE /tasks/{id}：通过

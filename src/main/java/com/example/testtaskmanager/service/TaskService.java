@@ -1,41 +1,43 @@
 package com.example.testtaskmanager.service;
 
 import com.example.testtaskmanager.entity.Task;
+import com.example.testtaskmanager.mapper.TaskMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class TaskService {
 
-    private final List<Task> tasks = new ArrayList<>();
-    private Long nextId = 1L;
+    private final TaskMapper taskMapper;
+
+    public TaskService(TaskMapper taskMapper) {
+        this.taskMapper = taskMapper;
+    }
 
     public Task createTask(Task task) {
-        task.setId(nextId++);
+        LocalDateTime now = LocalDateTime.now();
+
         task.setStatus("TODO");
-        task.setCreatedTime(LocalDateTime.now());
-        tasks.add(task);
+        task.setCreatedTime(now);
+        task.setUpdatedTime(now);
+
+        taskMapper.insert(task);
+
         return task;
     }
 
     public List<Task> getAllTasks() {
-        return tasks;
+        return taskMapper.findAll();
     }
 
     public Task getTaskById(Long id) {
-        for (Task task : tasks) {
-            if (task.getId().equals(id)) {
-                return task;
-            }
-        }
-        return null;
+        return taskMapper.findById(id);
     }
 
     public boolean updateTaskStatus(Long id, String status) {
-        Task task = getTaskById(id);
+        Task task = taskMapper.findById(id);
 
         if (task == null) {
             return false;
@@ -45,11 +47,14 @@ public class TaskService {
             return false;
         }
 
-        task.setStatus(status);
-        return true;
+        int rows = taskMapper.updateStatus(id, status, LocalDateTime.now());
+
+        return rows > 0;
     }
 
     public boolean deleteTask(Long id) {
-        return tasks.removeIf(task -> task.getId().equals(id));
+        int rows = taskMapper.deleteById(id);
+
+        return rows > 0;
     }
 }
