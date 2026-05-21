@@ -47,3 +47,11 @@ GET {{baseUrl}}/tasks
 # GET /tasks/{id}：通过
 # PUT /tasks/{id}/status：通过
 # DELETE /tasks/{id}：通过
+
+
+### 使用说明
+# 1. 先运行 POST /tasks 新增任务
+# 2. 查看返回结果中的 id
+# 3. 将顶部的 @taskId 改成真实存在的任务 id
+# 4. 再依次运行 GET /tasks/{{taskId}}、PUT /tasks/{{taskId}}/status、DELETE /tasks/{{taskId}}
+# 5. 不要长期固定使用 @taskId = 9，因为该任务可能已经被删除
