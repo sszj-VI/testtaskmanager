@@ -1,6 +1,7 @@
 package com.example.testtaskmanager.controller;
 
 
+import com.example.testtaskmanager.common.Result;
 import com.example.testtaskmanager.entity.Task;
 import com.example.testtaskmanager.service.TaskService;
 import org.springframework.web.bind.annotation.*;
@@ -19,42 +20,41 @@ public class TaskController {
     }
 
     @PostMapping
-    public Task createTask(@RequestBody Task task) {
-        return taskService.createTask(task);
+    public Result<Task> createTask(@RequestBody Task task) {
+        Task createdTask = taskService.createTask(task);
+        return Result.success(createdTask);
     }
 
     @GetMapping
-    public List<Task> getAllTasks() {
-        return taskService.getAllTasks();
+    public Result<List<Task>> getAllTasks() {
+        List<Task> tasks = taskService.getAllTasks();
+        return Result.success(tasks);
     }
 
     @GetMapping("/{id}")
-    public Object getTaskById(@PathVariable Long id) {
+    public Result<Task> getTaskById(@PathVariable Long id) {
         Task task = taskService.getTaskById(id);
 
-        if (task == null) {
-            return Map.of("message", "task not found");
-        }
-
-        return task;
+        //getTaskById 可能查不到
+        return Result.success(task);
     }
 
     @PutMapping("/{id}/status")
-    public Map<String, Object> updateTaskStatus(
+    public Result<Boolean> updateTaskStatus(
             @PathVariable Long id,
             @RequestBody Map<String, String> request
     ) {
         String status = request.get("status");
         boolean success = taskService.updateTaskStatus(id, status);
 
-        return Map.of("success", success);
+        return Result.success(success);
     }
 
     @DeleteMapping("/{id}")
-    public Map<String, Object> deleteTask(@PathVariable Long id) {
+    public Result<Boolean> deleteTask(@PathVariable Long id) {
         boolean success = taskService.deleteTask(id);
 
-        return Map.of("success", success);
+        return Result.success(success);
     }
 }
 

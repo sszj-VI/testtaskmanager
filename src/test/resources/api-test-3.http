@@ -1,8 +1,10 @@
 @baseUrl = http://localhost:8080
-@taskId = 9
+@taskId = 1
 
 ### 测试 Spring Boot 是否正常
 GET {{baseUrl}}/hello
+
+>>! {{$projectRoot}}/docs/api-responses/latest/01-hello.json
 
 
 ### 新增任务
@@ -10,17 +12,23 @@ POST {{baseUrl}}/tasks
 Content-Type: application/json
 
 {
-  "title": "今天测试用任务",
-  "description": "用于验证新增、查询、修改和删除"
+  "title": "统一返回结构测试任务",
+  "description": "用于验证 Result 返回格式"
 }
+
+>>! {{$projectRoot}}/docs/api-responses/latest/02-create-task.json
 
 
 ### 查询任务列表
 GET {{baseUrl}}/tasks
 
+>>! {{$projectRoot}}/docs/api-responses/latest/03-list-tasks.json
+
 
 ### 根据 ID 查询任务
 GET {{baseUrl}}/tasks/{{taskId}}
+
+>>! {{$projectRoot}}/docs/api-responses/latest/04-get-task-by-id.json
 
 
 ### 修改任务状态
@@ -31,27 +39,16 @@ Content-Type: application/json
   "status": "DONE"
 }
 
+>>! {{$projectRoot}}/docs/api-responses/latest/05-update-task-status.json
+
 
 ### 删除任务
 DELETE {{baseUrl}}/tasks/{{taskId}}
+
+>>! {{$projectRoot}}/docs/api-responses/latest/06-delete-task.json
 
 
 ### 删除后再次查询任务列表
 GET {{baseUrl}}/tasks
 
-
-### 当前测试结果记录
-# GET /hello：通过
-# POST /tasks：通过
-# GET /tasks：通过
-# GET /tasks/{id}：通过
-# PUT /tasks/{id}/status：通过
-# DELETE /tasks/{id}：通过
-
-
-### 使用说明
-# 1. 先运行 POST /tasks 新增任务
-# 2. 查看返回结果中的 id
-# 3. 将顶部的 @taskId 改成真实存在的任务 id
-# 4. 再依次运行 GET /tasks/{{taskId}}、PUT /tasks/{{taskId}}/status、DELETE /tasks/{{taskId}}
-# 5. 不要长期固定使用 @taskId = 9，因为该任务可能已经被删除
+>>! {{$projectRoot}}/docs/api-responses/latest/07-list-tasks-after-delete.json
