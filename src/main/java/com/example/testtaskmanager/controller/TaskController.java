@@ -2,8 +2,10 @@ package com.example.testtaskmanager.controller;
 
 
 import com.example.testtaskmanager.common.Result;
+import com.example.testtaskmanager.dto.UpdateTaskStatusRequest;
 import com.example.testtaskmanager.entity.Task;
 import com.example.testtaskmanager.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +22,7 @@ public class TaskController {
     }
 
     @PostMapping
-    public Result<Task> createTask(@RequestBody Task task) {
+    public Result<Task> createTask(@Valid @RequestBody Task task) {
         Task createdTask = taskService.createTask(task);
         return Result.success(createdTask);
     }
@@ -42,11 +44,9 @@ public class TaskController {
     @PutMapping("/{id}/status")
     public Result<Boolean> updateTaskStatus(
             @PathVariable Long id,
-            @RequestBody Map<String, String> request
+            @Valid @RequestBody UpdateTaskStatusRequest request
     ) {
-        String status = request.get("status");
-        boolean success = taskService.updateTaskStatus(id, status);
-
+        boolean success = taskService.updateTaskStatus(id, request.getStatus());
         return Result.success(success);
     }
 

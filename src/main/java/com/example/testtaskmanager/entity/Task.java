@@ -1,11 +1,17 @@
 package com.example.testtaskmanager.entity;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.time.LocalDateTime;
 
 public class Task {
 
     private Long id;
+    @NotBlank(message = "任务标题不能为空")
+    @Size(max = 100, message = "任务标题长度不能超过100个字符")
     private String title;
+    @Size(max = 500, message = "任务描述长度不能超过500个字符")
     private String description;
     private String status;
     private LocalDateTime createdTime;

@@ -1,0 +1,33 @@
+@baseUrl = http://localhost:8080
+@taskId = 1
+### 参数校验：新增任务标题为空
+POST {{baseUrl}}/tasks
+Content-Type: application/json
+
+{
+  "title": "",
+  "description": "测试标题为空"
+}
+
+>>! {{$projectRoot}}/docs/api-responses/validation/01-create-task-empty-title.json
+
+### 参数校验：新增任务标题过长
+POST {{baseUrl}}/tasks
+Content-Type: application/json
+
+{
+  "title": "这是一个非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常长的任务标题xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx，用于测试标题长度是否会被拦截",
+  "description": "测试标题过长"
+}
+
+>>! {{$projectRoot}}/docs/api-responses/validation/02-create-task-title-too-long.json
+
+### 参数校验：修改任务状态为非法值
+PUT {{baseUrl}}/tasks/{{taskId}}/status
+Content-Type: application/json
+
+{
+  "status": "ABC"
+}
+
+>>! {{$projectRoot}}/docs/api-responses/validation/03-update-task-invalid-status.json

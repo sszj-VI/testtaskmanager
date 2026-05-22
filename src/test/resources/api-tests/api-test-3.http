@@ -4,7 +4,7 @@
 ### 测试 Spring Boot 是否正常
 GET {{baseUrl}}/hello
 
->>! {{$projectRoot}}/docs/api-responses/latest/01-hello.json
+>>! {{$projectRoot}}/docs/api-responses/crud/01-hello.json
 
 
 ### 新增任务
@@ -16,19 +16,19 @@ Content-Type: application/json
   "description": "用于验证 Result 返回格式"
 }
 
->>! {{$projectRoot}}/docs/api-responses/latest/02-create-task.json
+>>! {{$projectRoot}}/docs/api-responses/crud/02-create-task.json
 
 
 ### 查询任务列表
 GET {{baseUrl}}/tasks
 
->>! {{$projectRoot}}/docs/api-responses/latest/03-list-tasks.json
+>>! {{$projectRoot}}/docs/api-responses/crud/03-list-tasks.json
 
 
 ### 根据 ID 查询任务
 GET {{baseUrl}}/tasks/{{taskId}}
 
->>! {{$projectRoot}}/docs/api-responses/latest/04-get-task-by-id.json
+>>! {{$projectRoot}}/docs/api-responses/crud/04-get-task-by-id.json
 
 
 ### 修改任务状态
@@ -39,16 +39,16 @@ Content-Type: application/json
   "status": "DONE"
 }
 
->>! {{$projectRoot}}/docs/api-responses/latest/05-update-task-status.json
+>>! {{$projectRoot}}/docs/api-responses/crud/05-update-task-status.json
 
 
 ### 删除任务
 DELETE {{baseUrl}}/tasks/{{taskId}}
 
->>! {{$projectRoot}}/docs/api-responses/latest/06-delete-task.json
+>>! {{$projectRoot}}/docs/api-responses/crud/06-delete-task.json
 
 
 ### 删除后再次查询任务列表
 GET {{baseUrl}}/tasks
 
->>! {{$projectRoot}}/docs/api-responses/latest/07-list-tasks-after-delete.json
+>>! {{$projectRoot}}/docs/api-responses/crud/07-list-tasks-after-delete.json
