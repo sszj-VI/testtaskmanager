@@ -24,6 +24,12 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(Result.error(400, message));
     }
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<Result<Void>> handleBusinessException(BusinessException e) {
+        return ResponseEntity
+                .status(e.getCode())
+                .body(Result.error(e.getCode(), e.getMessage()));
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Result<Void>> handleException(Exception e) {
@@ -33,4 +39,6 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Result.error(500, "服务器内部错误"));
     }
+
+
 }

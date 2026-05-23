@@ -1,6 +1,8 @@
 package com.example.testtaskmanager.service;
 
 import com.example.testtaskmanager.entity.Task;
+import com.example.testtaskmanager.enums.TaskStatus;
+import com.example.testtaskmanager.exception.BusinessException;
 import com.example.testtaskmanager.mapper.TaskMapper;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +21,7 @@ public class TaskService {
     public Task createTask(Task task) {
         LocalDateTime now = LocalDateTime.now();
 
-        task.setStatus("TODO");
+        task.setStatus(TaskStatus.TODO.name());
         task.setCreatedTime(now);
         task.setUpdatedTime(now);
 
@@ -33,18 +35,20 @@ public class TaskService {
     }
 
     public Task getTaskById(Long id) {
-        return taskMapper.findById(id);
+        Task task = taskMapper.findById(id);
+
+        if (task == null) {
+            throw new BusinessException(404, "任务不存在");
+        }
+
+        return task;
     }
 
     public boolean updateTaskStatus(Long id, String status) {
         Task task = taskMapper.findById(id);
 
         if (task == null) {
-            return false;
-        }
-
-        if (status == null || status.isBlank()) {
-            return false;
+            throw new BusinessException(404, "任务不存在");
         }
 
         int rows = taskMapper.updateStatus(id, status, LocalDateTime.now());
@@ -53,6 +57,12 @@ public class TaskService {
     }
 
     public boolean deleteTask(Long id) {
+        Task task = taskMapper.findById(id);
+
+        if (task == null) {
+            throw new BusinessException(404, "任务不存在");
+        }
+
         int rows = taskMapper.deleteById(id);
 
         return rows > 0;

@@ -1,0 +1,22 @@
+@baseUrl = http://localhost:8080
+@taskId = 1
+
+### 业务异常：查询不存在任务
+GET {{baseUrl}}/tasks/999999
+
+>>! {{$projectRoot}}/docs/api-responses/business-exception/01-get-task-not-found.json
+
+### 业务异常：修改不存在任务状态
+PUT {{baseUrl}}/tasks/999999/status
+Content-Type: application/json
+
+{
+  "status": "DONE"
+}
+
+>>! {{$projectRoot}}/docs/api-responses/business-exception/02-update-task-not-found.json
+
+### 业务异常：删除不存在任务
+DELETE {{baseUrl}}/tasks/999999
+
+>>! {{$projectRoot}}/docs/api-responses/business-exception/03-delete-task-not-found.json

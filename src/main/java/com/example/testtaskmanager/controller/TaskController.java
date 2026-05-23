@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/tasks")
@@ -36,8 +35,6 @@ public class TaskController {
     @GetMapping("/{id}")
     public Result<Task> getTaskById(@PathVariable Long id) {
         Task task = taskService.getTaskById(id);
-
-        //getTaskById 可能查不到
         return Result.success(task);
     }
 

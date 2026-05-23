@@ -530,3 +530,31 @@ public Result<Task> createTask(@Valid @RequestBody Task task)
 
 通过这次更新，项目不仅能处理正常请求，也能对错误请求返回清晰、统一的错误信息，避免直接暴露 Spring Boot 默认错误格式。
 
+## 2026-05-XX：任务状态枚举与业务异常处理
+
+### 本阶段目标
+
+使用枚举管理任务状态，并在查询、修改、删除不存在任务时返回明确的业务错误。
+
+### 已完成内容
+
+- 新增 TaskStatus 枚举
+- 新增 BusinessException 业务异常
+- 在 GlobalExceptionHandler 中统一处理 BusinessException
+- 在 TaskService 中判断任务是否存在
+- 查询不存在任务时返回 404
+- 修改不存在任务时返回 404
+- 删除不存在任务时返回 404
+- 正常 CRUD 回归测试通过
+
+### 本阶段理解
+
+参数错误和业务错误是不同的。参数错误通常返回 400，例如标题为空、状态值非法；业务错误通常表示请求格式正确，但业务对象不存在或状态不允许操作，例如任务不存在返回 404。
+
+本阶段中，Service 层负责判断任务是否存在，如果不存在则抛出 BusinessException。GlobalExceptionHandler 捕获该异常，并统一封装成 Result 错误响应。
+
+### 下一步计划
+
+- 分页查询
+- 按状态筛选
+- 更完善的错误码设计
