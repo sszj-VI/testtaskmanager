@@ -2,7 +2,7 @@
 
 ## 2026-05-21：MySQL 数据库版 CRUD 整理
 
-### 今日目标
+### 本阶段目标
 
 整理当前 `testtaskmanager` 项目，确认 Spring Boot + MyBatis + MySQL 数据库版 CRUD 可以正常运行，并补充接口测试文件和项目文档。
 
@@ -18,8 +18,8 @@
 - 使用 HTTP Client 测试 `GET /tasks/{id}` 根据 ID 查询任务
 - 使用 HTTP Client 测试 `PUT /tasks/{id}/status` 修改任务状态
 - 使用 HTTP Client 测试 `DELETE /tasks/{id}` 删除任务
-- 整理 `api-test-3.http`
-- 更新 `README.md`
+- 整理接口测试文件
+- 更新项目 README 文档
 
 ### 当前项目链路理解
 
@@ -189,40 +189,48 @@ DELETE /tasks/{id}：通过
 - 项目文档整理
 - 基础错误排查
 
-### 当前项目不足
+---
 
-当前项目虽然已经完成数据库版 CRUD，但仍然比较基础，主要不足包括：
+## 2026-05-21：统一接口返回结构
 
-- 不同接口返回格式还不统一
-- 参数缺少校验，例如标题为空时没有明确提示
-- 查询不存在 ID 时返回结果还不够规范
-- 异常处理还比较粗糙
-- 任务状态目前还是字符串，缺少枚举限制
-- 查询列表还没有分页
-- 查询列表还不能按状态筛选
+### 本阶段目标
 
-### 后续优化方向
+将任务管理系统中不同接口的返回格式统一为 `Result`，提升接口规范性。
 
-下一阶段不急着增加复杂功能，而是先提升项目规范性：
+### 已完成内容
 
-1. 统一接口返回结构
-2. 增加参数校验
-3. 增加全局异常处理
-4. 使用枚举管理任务状态
-5. 增加分页查询
-6. 增加按状态筛选
+- 新增 `common.Result` 通用返回类
+- 将 `POST /tasks` 返回值改为 `Result<Task>`
+- 将 `GET /tasks` 返回值改为 `Result<List<Task>>`
+- 将 `GET /tasks/{id}` 返回值改为 `Result<Task>`
+- 将 `PUT /tasks/{id}/status` 返回值改为 `Result<Boolean>`
+- 将 `DELETE /tasks/{id}` 返回值改为 `Result<Boolean>`
+- 使用 HTTP Client 重新测试核心接口
+- 保存 CRUD 接口响应结果
 
-### 面试表达草稿
+### 统一后的响应格式
 
-这个项目是一个基于 Spring Boot + MyBatis + MySQL 的任务管理系统后端项目。
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {}
+}
+```
 
-项目采用 Controller、Service、Mapper 分层结构。Controller 负责接收 HTTP 请求，Service 负责处理业务逻辑，Mapper 通过 MyBatis 执行 SQL 操作 MySQL 数据库。
+### 本阶段理解
 
-目前项目实现了任务的新增、查询列表、根据 ID 查询、修改任务状态和删除功能，并使用 IntelliJ IDEA HTTP Client 对接口进行了测试。
+统一返回结构可以让不同接口的响应格式保持一致，方便前端统一处理，也让后端接口更规范。
 
-通过这个项目，我熟悉了 Spring Boot 后端接口开发、MyBatis 数据库操作、REST API 设计、MySQL 表结构设计以及基础的接口调试流程。
+原来不同接口可能分别返回对象、列表或 Map。统一之后，所有任务相关接口都返回 `Result`，真实数据放在 `data` 字段中。
 
-在开发过程中，我还遇到并排查了 `400`、`415`、`500` 等问题，进一步理解了请求参数格式、请求头设置、数据库连接和后端异常排查的重要性。
+### 当前项目价值
+
+通过统一返回结构，项目不再只是“接口能跑”，而是开始具备基础接口规范。
+
+统一返回结构让后续参数校验、业务异常和系统异常都可以用类似格式返回，为后续全局异常处理打下基础。
+
+---
 
 ## 2026-05-22：参数校验与全局异常处理
 
@@ -440,51 +448,6 @@ public Result<Boolean> updateTaskStatus(
 
 这让项目从“只处理正常请求”提升到“可以处理错误请求”，接口表现更接近真实后端项目。
 
-### 本阶段遇到和解决的问题
-
-#### 1. 为什么只写注解还不够？
-
-只在字段上写 `@NotBlank`、`@Size`、`@Pattern` 只是声明规则。
-
-如果 Controller 中没有使用 `@Valid`，这些规则不会自动生效。
-
-所以需要这样写：
-
-```java
-public Result<Task> createTask(@Valid @RequestBody Task task)
-```
-
-#### 2. 为什么要新增 DTO，而不是继续用 Map？
-
-之前修改任务状态使用 `Map<String, String>` 接收请求，虽然能拿到 `status`，但不方便声明校验规则。
-
-新增 `UpdateTaskStatusRequest` 后，可以直接在 `status` 字段上使用 `@NotBlank` 和 `@Pattern`，代码更清晰，也更符合真实项目写法。
-
-#### 3. 为什么要有全局异常处理？
-
-如果没有全局异常处理，参数错误时 Spring Boot 会返回默认错误格式，例如：
-
-```json
-{
-  "timestamp": "...",
-  "status": 400,
-  "error": "Bad Request",
-  "path": "/tasks"
-}
-```
-
-这和项目自己的 `Result` 返回结构不一致。
-
-加入 `GlobalExceptionHandler` 后，可以把错误响应也统一成：
-
-```json
-{
-  "code": 400,
-  "message": "具体错误信息",
-  "data": null
-}
-```
-
 ### 当前项目价值
 
 经过本阶段更新后，项目已经具备以下能力：
@@ -498,39 +461,22 @@ public Result<Task> createTask(@Valid @RequestBody Task task)
 - HTTP Client 接口测试
 - 响应结果文件保存
 
-这说明项目已经不只是“能跑”，而是开始具备基本接口规范。
+### 当时仍然存在的不足
 
-### 当前仍然存在的不足
+在本阶段完成时，项目仍然存在以下不足：
 
 - 查询不存在的任务 ID 时，业务语义还不够清晰
-- 修改或删除不存在的任务时，目前主要返回 `false`
+- 修改或删除不存在的任务时，主要返回 `false`
 - 任务状态虽然已经在请求层做校验，但还没有抽成枚举
 - 错误码设计还比较简单
 - 查询列表还没有分页
 - 查询列表还不能按状态筛选
 
-### 后续优化方向
+这些问题中的“任务状态枚举”和“任务不存在时的业务异常处理”已在下一阶段解决。
 
-下一阶段可以继续优化：
+---
 
-1. 任务状态枚举
-2. 查询不存在 ID 时的业务异常处理
-3. 修改和删除不存在任务时的错误提示
-4. 分页查询
-5. 按状态筛选
-6. 更完善的错误码设计
-
-### 面试表达草稿
-
-我在项目中引入了 `spring-boot-starter-validation`，使用 `@NotBlank`、`@Size`、`@Pattern` 等注解对请求参数进行基础校验。
-
-例如新增任务时，任务标题不能为空且长度不能超过 100 个字符；修改任务状态时，只允许传入 `TODO`、`DOING`、`DONE` 三种状态。
-
-同时，我新增了 `GlobalExceptionHandler` 全局异常处理类，使用 `@RestControllerAdvice` 统一捕获参数校验异常，并将错误信息封装成统一的 `Result` 返回结构。
-
-通过这次更新，项目不仅能处理正常请求，也能对错误请求返回清晰、统一的错误信息，避免直接暴露 Spring Boot 默认错误格式。
-
-## 2026-05-XX：任务状态枚举与业务异常处理
+## 2026-05-22：任务状态枚举与业务异常处理
 
 ### 本阶段目标
 
@@ -538,23 +484,286 @@ public Result<Task> createTask(@Valid @RequestBody Task task)
 
 ### 已完成内容
 
-- 新增 TaskStatus 枚举
-- 新增 BusinessException 业务异常
-- 在 GlobalExceptionHandler 中统一处理 BusinessException
-- 在 TaskService 中判断任务是否存在
+- 新增 `TaskStatus` 枚举
+- 新增 `BusinessException` 业务异常类
+- 在 `GlobalExceptionHandler` 中统一处理 `BusinessException`
+- 在 `TaskService` 中判断任务是否存在
 - 查询不存在任务时返回 404
-- 修改不存在任务时返回 404
+- 修改不存在任务状态时返回 404
 - 删除不存在任务时返回 404
 - 正常 CRUD 回归测试通过
+- 新增业务异常响应结果文件
+
+### 本阶段新增和修改的关键文件
+
+#### `TaskStatus.java`
+
+新增任务状态枚举：
+
+```java
+package com.example.testtaskmanager.enums;
+
+public enum TaskStatus {
+
+    TODO,
+    DOING,
+    DONE
+
+}
+```
+
+该枚举用于集中管理任务状态，避免在代码中直接散落字符串。
+
+例如新增任务时，默认状态可以写成：
+
+```java
+task.setStatus(TaskStatus.TODO.name());
+```
+
+这样比直接写 `"TODO"` 更清晰，也更不容易写错。
+
+#### `BusinessException.java`
+
+新增业务异常类：
+
+```java
+package com.example.testtaskmanager.exception;
+
+public class BusinessException extends RuntimeException {
+
+    private final Integer code;
+
+    public BusinessException(Integer code, String message) {
+        super(message);
+        this.code = code;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+}
+```
+
+该类用于表示业务层面的错误，例如任务不存在。
+
+它和系统异常不同。任务不存在不是代码崩溃，而是业务请求对应的资源不存在。
+
+#### `GlobalExceptionHandler.java`
+
+新增对 `BusinessException` 的处理：
+
+```java
+@ExceptionHandler(BusinessException.class)
+public ResponseEntity<Result<Void>> handleBusinessException(BusinessException e) {
+    return ResponseEntity
+            .status(e.getCode())
+            .body(Result.error(e.getCode(), e.getMessage()));
+}
+```
+
+当 Service 层抛出：
+
+```java
+throw new BusinessException(404, "任务不存在");
+```
+
+全局异常处理器会捕获该异常，并返回：
+
+```json
+{
+  "code": 404,
+  "message": "任务不存在",
+  "data": null
+}
+```
+
+#### `TaskService.java`
+
+在查询、修改、删除任务时增加任务是否存在的判断。
+
+查询任务：
+
+```java
+public Task getTaskById(Long id) {
+    Task task = taskMapper.findById(id);
+
+    if (task == null) {
+        throw new BusinessException(404, "任务不存在");
+    }
+
+    return task;
+}
+```
+
+修改任务状态：
+
+```java
+public boolean updateTaskStatus(Long id, String status) {
+    Task task = taskMapper.findById(id);
+
+    if (task == null) {
+        throw new BusinessException(404, "任务不存在");
+    }
+
+    int rows = taskMapper.updateStatus(id, status, LocalDateTime.now());
+
+    return rows > 0;
+}
+```
+
+删除任务：
+
+```java
+public boolean deleteTask(Long id) {
+    Task task = taskMapper.findById(id);
+
+    if (task == null) {
+        throw new BusinessException(404, "任务不存在");
+    }
+
+    int rows = taskMapper.deleteById(id);
+
+    return rows > 0;
+}
+```
+
+### 当前测试结果
+
+#### 1. 查询不存在任务
+
+请求：
+
+```http
+GET /tasks/999999
+```
+
+预期结果：
+
+```json
+{
+  "code": 404,
+  "message": "任务不存在",
+  "data": null
+}
+```
+
+测试结果：通过。
+
+#### 2. 修改不存在任务状态
+
+请求：
+
+```http
+PUT /tasks/999999/status
+Content-Type: application/json
+
+{
+  "status": "DONE"
+}
+```
+
+预期结果：
+
+```json
+{
+  "code": 404,
+  "message": "任务不存在",
+  "data": null
+}
+```
+
+测试结果：通过。
+
+#### 3. 删除不存在任务
+
+请求：
+
+```http
+DELETE /tasks/999999
+```
+
+预期结果：
+
+```json
+{
+  "code": 404,
+  "message": "任务不存在",
+  "data": null
+}
+```
+
+测试结果：通过。
+
+#### 4. 正常 CRUD 回归测试
+
+正常新增、查询、修改状态、删除任务仍然可以正常执行。
+
+测试结果：通过。
 
 ### 本阶段理解
 
-参数错误和业务错误是不同的。参数错误通常返回 400，例如标题为空、状态值非法；业务错误通常表示请求格式正确，但业务对象不存在或状态不允许操作，例如任务不存在返回 404。
+参数错误和业务错误是不同的。
 
-本阶段中，Service 层负责判断任务是否存在，如果不存在则抛出 BusinessException。GlobalExceptionHandler 捕获该异常，并统一封装成 Result 错误响应。
+参数错误通常表示请求内容本身不合法，例如标题为空、任务状态非法，适合返回 400。
 
-### 下一步计划
+业务错误通常表示请求格式正确，但请求的业务对象不存在或当前状态不允许操作，例如任务不存在，适合返回 404。
 
-- 分页查询
-- 按状态筛选
-- 更完善的错误码设计
+本阶段中，Service 层负责判断任务是否存在。如果不存在，就抛出 `BusinessException`。`GlobalExceptionHandler` 捕获该异常，并统一封装成 `Result` 错误响应。
+
+### 本阶段请求链路理解
+
+以查询不存在任务为例：
+
+```text
+GET /tasks/999999
+→ TaskController.getTaskById
+→ TaskService.getTaskById
+→ taskMapper.findById
+→ 查不到任务，返回 null
+→ TaskService 抛出 BusinessException(404, "任务不存在")
+→ GlobalExceptionHandler 捕获 BusinessException
+→ 返回 HTTP 404 + Result.error(404, "任务不存在")
+```
+
+### 当前项目价值
+
+经过本阶段更新后，项目已经可以区分不同类型的错误：
+
+```text
+正常请求：200
+参数错误：400
+业务错误：404
+未知系统错误：500
+```
+
+这让项目的接口语义更清晰，也更接近真实后端项目的设计方式。
+
+### 当前仍然存在的不足
+
+- 查询列表还没有分页
+- 查询列表还不能按状态筛选
+- 错误码设计仍然比较简单
+- 业务异常类型还比较少
+- 项目还没有登录、权限、部署等更复杂功能
+
+### 后续优化方向
+
+下一阶段可以继续优化：
+
+1. 分页查询
+2. 按状态筛选
+3. 更完善的错误码设计
+4. 更清晰的业务异常分类
+5. 简历项目描述和面试讲稿整理
+
+### 面试表达草稿
+
+我在项目中区分了参数异常和业务异常。
+
+参数异常主要通过 `spring-boot-starter-validation`、`@Valid`、`@NotBlank`、`@Size`、`@Pattern` 等注解处理，例如标题为空或任务状态非法时返回 400。
+
+对于任务不存在这类业务问题，我自定义了 `BusinessException`，并在 Service 层判断任务是否存在。如果不存在，就抛出 `BusinessException(404, "任务不存在")`。
+
+同时，我使用 `@RestControllerAdvice` 编写了 `GlobalExceptionHandler`，统一捕获参数校验异常、业务异常和其他未知异常，并封装成统一的 `Result` 返回结构。
+
+通过这次更新，项目可以区分正常请求、参数错误、业务错误和未知系统错误，接口表现更清晰，也更接近真实后端项目。
