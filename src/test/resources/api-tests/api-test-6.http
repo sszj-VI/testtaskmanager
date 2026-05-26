@@ -1,0 +1,42 @@
+@baseUrl = http://localhost:8080
+
+### 分页查询：第一页，每页 10 条
+GET {{baseUrl}}/tasks?page=1&pageSize=10
+
+>>! {{$projectRoot}}/docs/api-responses/page-query/01-list-page.json
+
+
+### 按状态筛选：TODO
+GET {{baseUrl}}/tasks?page=1&pageSize=10&status=TODO
+
+>>! {{$projectRoot}}/docs/api-responses/page-query/02-list-todo.json
+
+
+### 按状态筛选：DOING
+GET {{baseUrl}}/tasks?page=1&pageSize=10&status=DOING
+
+>>! {{$projectRoot}}/docs/api-responses/page-query/03-list-doing.json
+
+
+### 按状态筛选：DONE
+GET {{baseUrl}}/tasks?page=1&pageSize=10&status=DONE
+
+>>! {{$projectRoot}}/docs/api-responses/page-query/04-list-done.json
+
+
+### 参数错误：page 小于 1
+GET {{baseUrl}}/tasks?page=0&pageSize=10
+
+>>! {{$projectRoot}}/docs/api-responses/page-query/05-invalid-page.json
+
+
+### 参数错误：pageSize 超过 100
+GET {{baseUrl}}/tasks?page=1&pageSize=101
+
+>>! {{$projectRoot}}/docs/api-responses/page-query/06-invalid-page-size.json
+
+
+### 参数错误：非法 status
+GET {{baseUrl}}/tasks?page=1&pageSize=10&status=ABC
+
+>>! {{$projectRoot}}/docs/api-responses/page-query/07-invalid-status.json

@@ -1,12 +1,5 @@
 {
-  "code": 200,
-  "message": "success",
-  "data": {
-    "id": 2,
-    "title": "统一返回结构测试任务",
-    "description": "用于验证 Result 返回格式",
-    "status": "TODO",
-    "createdTime": "2026-05-23T19:39:08.5259931",
-    "updatedTime": "2026-05-23T19:39:08.5259931"
-  }
+  "code": 500,
+  "message": "服务器内部错误",
+  "data": null
 }

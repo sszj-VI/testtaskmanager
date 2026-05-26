@@ -1,5 +1,5 @@
 {
-  "code": 400,
-  "message": "任务标题不能为空",
+  "code": 500,
+  "message": "服务器内部错误",
   "data": null
 }

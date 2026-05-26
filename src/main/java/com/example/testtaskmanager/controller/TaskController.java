@@ -1,7 +1,9 @@
 package com.example.testtaskmanager.controller;
 
 
+import com.example.testtaskmanager.common.PageResult;
 import com.example.testtaskmanager.common.Result;
+import com.example.testtaskmanager.dto.CreateTaskRequest;
 import com.example.testtaskmanager.dto.UpdateTaskStatusRequest;
 import com.example.testtaskmanager.entity.Task;
 import com.example.testtaskmanager.service.TaskService;
@@ -19,17 +21,21 @@ public class TaskController {
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
-
     @PostMapping
-    public Result<Task> createTask(@Valid @RequestBody Task task) {
-        Task createdTask = taskService.createTask(task);
+    public Result<Task> createTask(@Valid @RequestBody CreateTaskRequest request) {
+        Task createdTask = taskService.createTask(request);
         return Result.success(createdTask);
     }
 
+
     @GetMapping
-    public Result<List<Task>> getAllTasks() {
-        List<Task> tasks = taskService.getAllTasks();
-        return Result.success(tasks);
+    public Result<PageResult<Task>> getTasks(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false) String status
+    ) {
+        PageResult<Task> result = taskService.getTaskPage(page, pageSize, status);
+        return Result.success(result);
     }
 
     @GetMapping("/{id}")

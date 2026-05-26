@@ -15,7 +15,7 @@ public interface TaskMapper {
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Task task);
-
+    @Deprecated
     @Select("""
             SELECT id, title, description, status, created_time, updated_time
             FROM task
@@ -44,4 +44,36 @@ public interface TaskMapper {
             WHERE id = #{id}
             """)
     int deleteById(Long id);
+
+    @Select("""
+        <script>
+        SELECT id, title, description, status, created_time, updated_time
+        FROM task
+        <where>
+            <if test="status != null and status != ''">
+                status = #{status}
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+        </script>
+        """)
+    List<Task> findPage(
+            @Param("status") String status,
+            @Param("offset") Integer offset,
+            @Param("pageSize") Integer pageSize
+    );
+
+    @Select("""
+        <script>
+        SELECT COUNT(*)
+        FROM task
+        <where>
+            <if test="status != null and status != ''">
+                status = #{status}
+            </if>
+        </where>
+        </script>
+        """)
+    Long count(@Param("status") String status);
 }
